@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>doofs.tech | Products by Doofs</title>
+    <meta name="description" content="An ecosystem of developer tools and experiments." />
+    <meta name="author" content="Doofs" />
+
+    <meta property="og:title" content="doofs.tech | Products by Doofs" />
+    <meta property="og:description" content="An ecosystem of developer tools and experiments." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://doofs.tech" />
+    <meta property="og:image" content="https://doofs.tech/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="doofs.tech | Products by Doofs" />
+    <meta name="twitter:description" content="An ecosystem of developer tools and experiments." />
+
+    <link rel="icon" id="favicon" href="/doofs.tech-lightmode-logo.ico" />
+    <script>
+      // Dynamically update favicon based on theme
+      const updateFavicon = () => {
+        const favicon = document.getElementById('favicon');
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        favicon.href = isDark ? '/doofs.tech-darkmode-logo.ico' : '/doofs.tech-lightmode-logo.ico';
+      };
+      
+      updateFavicon();
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
