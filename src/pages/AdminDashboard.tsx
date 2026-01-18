@@ -11,14 +11,20 @@ const AdminDashboard = () => {
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
   const currentUser = useQuery(api.admin.getCurrentUser);
-  const allUsers = useQuery(api.admin.getAllUsers);
   const isAdmin = useQuery(api.admin.isAdmin);
+  
+  // Only fetch all users if user is admin
+  const allUsers = useQuery(
+    api.admin.getAllUsers,
+    isAdmin === true ? {} : "skip"
+  );
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
+  // Redirect to login if not authenticated
   if (currentUser === undefined || isAdmin === undefined) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -27,6 +33,12 @@ const AdminDashboard = () => {
         </div>
       </div>
     );
+  }
+
+  // Redirect to login if user is null (not logged in)
+  if (currentUser === null) {
+    navigate(`${import.meta.env.VITE_ADMIN_ROUTE || "/admin-122303"}/login`);
+    return null;
   }
 
   if (!isAdmin) {
