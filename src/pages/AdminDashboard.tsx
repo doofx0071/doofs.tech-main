@@ -1,15 +1,20 @@
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import AdminHeader from "@/components/AdminHeader";
+import AdminSidebar from "@/components/AdminSidebar";
+import { cn } from "@/lib/utils";
 
 const AdminDashboard = () => {
-  const { signOut } = useAuthActions();
   const navigate = useNavigate();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("dashboard");
+  
   const currentUser = useQuery(api.admin.getCurrentUser);
   const isAdmin = useQuery(api.admin.isAdmin);
   
@@ -18,11 +23,6 @@ const AdminDashboard = () => {
     api.admin.getAllUsers,
     isAdmin === true ? {} : "skip"
   );
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
 
   // Redirect to login if not authenticated
   if (currentUser === undefined || isAdmin === undefined) {
@@ -50,9 +50,9 @@ const AdminDashboard = () => {
             <CardDescription>You don't have admin privileges.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate("/")} className="w-full">
+            <button onClick={() => navigate("/")} className="w-full">
               Go to Home
-            </Button>
+            </button>
           </CardContent>
         </Card>
       </div>
@@ -62,34 +62,28 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Manage your doofs.tech platform</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={currentUser?.image} />
-                <AvatarFallback>
-                  {currentUser?.email?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-sm">
-                <p className="font-medium">{currentUser?.name || currentUser?.email}</p>
-                <Badge variant="secondary" className="text-xs">Admin</Badge>
-              </div>
-            </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AdminHeader 
+        currentUser={currentUser} 
+        onMenuClick={() => setIsMobileSidebarOpen(true)}
+      />
+
+      {/* Sidebar */}
+      <AdminSidebar
+        isCollapsed={isSidebarCollapsed}
+        isMobileOpen={isMobileSidebarOpen}
+        onCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+      />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className={cn(
+        "transition-all duration-300 pt-4",
+        "lg:ml-[240px]",
+        isSidebarCollapsed && "lg:ml-[80px]"
+      )}>
+        <div className="container mx-auto px-4 py-8">
         <div className="grid gap-6">
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-3">
@@ -172,6 +166,7 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
         </div>
       </main>
     </div>
